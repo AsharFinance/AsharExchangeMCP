@@ -73,6 +73,54 @@ ASHAR_EXCHANGE_TRANSPORT=http PORT=3001 node dist/index.js
 - Endpoint MCP: `http://localhost:3001/mcp`
 - Health check: `http://localhost:3001/health`
 
+## Modos de consumo
+
+Há duas formas de um cliente consumir o Ashar Exchange MCP:
+
+### Opção 1 — Serviço hospedado (Streamable HTTP) ⭐
+
+A Ashar opera o servidor MCP como um serviço público. O cliente **não instala nada** — aponta seu cliente MCP para `https://api.ashar.finance/mcp` e envia a chave do tenant.
+
+```json
+{
+  "mcpServers": {
+    "ashar-exchange": {
+      "url": "https://api.ashar.finance/mcp",
+      "headers": {
+        "X-Ashar-Tenant-Key": "ash_proxy_..."
+      }
+    }
+  }
+}
+```
+
+- Ideal para **agentes/LLMs** que falam MCP sem precisar rodar infra.
+- Todas as requests passam pelo servidor Ashar, que aplica o **spread/fee do tenant** e pode **monitorar** cada operação.
+- Endpoints de provisionamento (`ashar_provision_test_tenant`) funcionam sem chave.
+
+### Opção 2 — Self-host (stdio)
+
+O cliente roda o servidor localmente (ou no próprio container) e aponta para a API pública da Ashar.
+
+```json
+{
+  "mcpServers": {
+    "ashar-exchange": {
+      "command": "node",
+      "args": ["/caminho/para/AsharExchangeMCP/dist/index.js"],
+      "env": {
+        "ASHAR_EXCHANGE_TENANT_KEY": "ash_proxy_..."
+      }
+    }
+  }
+}
+```
+
+- Ideal para **CLI / editores / IDEs** e para clientes que preferem manter o processo por conta própria.
+- Continua passando pela API pública (`https://api.ashar.finance/v2`), mantendo spread e monitoramento no servidor.
+
+> Ambos os modos **não substituem a API REST** (`/v2`). Um cliente tradicional (app/site/backend) integra direto pela REST; o MCP é o canal para agentes de IA.
+
 ## Fluxo típico
 
 1. (`ashar_provision_test_tenant`) — opcional, para criar um tenant de teste com uma chave nova
