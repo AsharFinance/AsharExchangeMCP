@@ -1,0 +1,41 @@
+{
+  "name": "ashar-exchange-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for the Ashar Exchange API (PIX ↔ USDC/USDT) — platform fees, payins, payouts, transfers, wallets, customers and stats",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "ashar-exchange-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ashar",
+    "exchange",
+    "pix",
+    "usdc",
+    "usdt"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "axios": "^1.7.9",
+    "express": "^5.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
