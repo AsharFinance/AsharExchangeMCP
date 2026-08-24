@@ -4,47 +4,13 @@ import { ExchangeClient } from "../client.js";
 import { buildResult } from "../format.js";
 
 /**
- * Ashar Exchange — rails & fees group.
+ * Ashar Exchange — fees group.
  *
- * Mirrors the BlindPay "rails / billing-fees / partner-fees" surface but stays
+ * Mirrors the BlindPay "partner-fees" surface but stays
  * 100% white-label: every call goes through the Ashar Exchange API
  * (`X-Ashar-Tenant-Key`), and only sanitized fields are returned.
  */
 export function registerFeeTools(server: McpServer, client: ExchangeClient): void {
-  // GET /rails — available rails / payment methods
-  server.registerTool(
-    "ashar_get_available_rails",
-    {
-      title: "Get Available Rails",
-      description: `List the payment rails (methods/channels) available to the tenant's instance.
-
-No arguments. Returns an array of rails (e.g. pix, ted).`,
-      inputSchema: z.object({}).strict(),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-    },
-    async () => {
-      const data = await client.request("/rails", "GET");
-      return buildResult(data);
-    }
-  );
-
-  // GET /fees/billing — billing fees
-  server.registerTool(
-    "ashar_get_billing_fees",
-    {
-      title: "Get Billing Fees",
-      description: `Get the instance billing fees (flat fees per rail, e.g. pix_fee, ted_fee).
-
-No arguments. Returns a sanitized list of billing_fees.`,
-      inputSchema: z.object({}).strict(),
-      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
-    },
-    async () => {
-      const data = await client.request("/fees/billing", "GET");
-      return buildResult(data);
-    }
-  );
-
   // GET /fees/partner-fees — list partner fees
   server.registerTool(
     "ashar_list_partner_fees",

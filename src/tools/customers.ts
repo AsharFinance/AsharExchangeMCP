@@ -505,38 +505,6 @@ Returns 204 No Content on success.`,
     }
   );
 
-  // ---- Customer blockchain wallet — sign message ----
-  server.registerTool(
-    "ashar_sign_customer_blockchain_wallet_message",
-    {
-      title: "Sign Customer Blockchain Wallet Message",
-      description: `Sign a message with a customer's blockchain wallet.
-
-Args:
-  - customer_id (string): the customer id
-  - wallet_id (string): the blockchain wallet id
-  - message (string): the message to sign
-
-Returns the signed result.`,
-      inputSchema: z
-        .object({
-          customer_id: z.string().describe("Customer id"),
-          wallet_id: z.string().describe("Blockchain wallet id"),
-          message: z.string().describe("Message to sign"),
-        })
-        .strict(),
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
-    },
-    async (params) => {
-      const data = await client.request(
-        `/customers/${encodeURIComponent(params.customer_id)}/blockchain-wallets/${encodeURIComponent(params.wallet_id)}/sign-message`,
-        "POST",
-        { message: params.message }
-      );
-      return buildResult(data);
-    }
-  );
-
   // ---- Customer bank account — offramp wallets ----
   server.registerTool(
     "ashar_list_customer_offramp_wallets",
