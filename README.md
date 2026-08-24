@@ -79,13 +79,13 @@ Há duas formas de um cliente consumir o Ashar Exchange MCP:
 
 ### Opção 1 — Serviço hospedado (Streamable HTTP) ⭐
 
-A Ashar opera o servidor MCP como um serviço público. O cliente **não instala nada** — aponta seu cliente MCP para `https://api.ashar.finance/mcp` e envia a chave do tenant.
+A Ashar opera o servidor MCP como um serviço público no subdomínio **`mcp.ashar.finance`**. O cliente **não instala nada** — aponta seu cliente MCP para `https://mcp.ashar.finance/mcp` e envia a chave do tenant.
 
 ```json
 {
   "mcpServers": {
     "ashar-exchange": {
-      "url": "https://api.ashar.finance/mcp",
+      "url": "https://mcp.ashar.finance/mcp",
       "headers": {
         "X-Ashar-Tenant-Key": "ash_proxy_..."
       }
@@ -93,6 +93,8 @@ A Ashar opera o servidor MCP como um serviço público. O cliente **não instala
   }
 }
 ```
+
+- Health check público: `https://mcp.ashar.finance/health`
 
 - Ideal para **agentes/LLMs** que falam MCP sem precisar rodar infra.
 - Todas as requests passam pelo servidor Ashar, que aplica o **spread/fee do tenant** e pode **monitorar** cada operação.
@@ -120,6 +122,29 @@ O cliente roda o servidor localmente (ou no próprio container) e aponta para a 
 - Continua passando pela API pública (`https://api.ashar.finance/v2`), mantendo spread e monitoramento no servidor.
 
 > Ambos os modos **não substituem a API REST** (`/v2`). Um cliente tradicional (app/site/backend) integra direto pela REST; o MCP é o canal para agentes de IA.
+
+## Deploy (serviço hospedado)
+
+O subdomínio **`mcp.ashar.finance`** aponta para o serviço `AsharExchangeMCP` no Railway (porta 3001). O build é via [Dockerfile](Dockerfile) e a config em [railway.json](railway.json).
+
+```bash
+cd mcp
+railway login
+railway up        # usa o Dockerfile; sobe em :3001 com ASHAR_EXCHANGE_TRANSPORT=http
+```
+
+Roteamento público (no gateway):
+- `mcp.ashar.finance/mcp`  → serviço `:3001/mcp` (sem strip)
+- `mcp.ashar.finance/health` → serviço `:3001/health`
+
+Variáveis de ambiente recomendadas no serviço:
+
+| Var | Valor |
+|-----|-------|
+| `ASHAR_EXCHANGE_TRANSPORT` | `http` (default já no Dockerfile) |
+| `PORT` | `3001` (default já no Dockerfile) |
+| `ASHAR_EXCHANGE_BASE_URL` | `https://api.ashar.finance/v2` |
+| `ASHAR_EXCHANGE_TENANT_KEY` | opcional — chave default p/ chamadas protegidas |
 
 ## Fluxo típico
 
