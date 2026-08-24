@@ -3,11 +3,13 @@ import { ExchangeClient } from "../client.js";
 import { registerAdminTools } from "./admin.js";
 import { registerBankAccountTools } from "./bankAccounts.js";
 import { registerCustomerTools } from "./customers.js";
+import { registerFeeTools } from "./fees.js";
 import { registerPayinTools } from "./payins.js";
 import { registerPayoutTools } from "./payouts.js";
 import { registerQuoteTools } from "./quotes.js";
 import { registerStatTools } from "./stats.js";
 import { registerTransferTools } from "./transfers.js";
+import { registerUploadTools } from "./upload.js";
 import { registerWalletTools } from "./wallets.js";
 
 /** Register every Ashar Exchange tool group on the given MCP server. */
@@ -20,5 +22,7 @@ export function registerAllTools(server: McpServer, client: ExchangeClient): voi
   registerBankAccountTools(server, client);
   registerStatTools(server, client);
   registerCustomerTools(server, client);
+  registerFeeTools(server, client);
+  registerUploadTools(server, client);
   registerAdminTools(server, client);
 }

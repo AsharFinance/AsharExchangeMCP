@@ -363,4 +363,270 @@ Returns the created virtual account.`,
       return buildResult(data);
     }
   );
+
+  // ---- Customer custodial wallets (wallets linked to a customer) ----
+  server.registerTool(
+    "ashar_list_customer_custodial_wallets",
+    {
+      title: "List Customer Custodial Wallets",
+      description: `List a customer's custodial (wallet) wallets.
+
+Args:
+  - customer_id (string): the customer id
+
+Returns an array of curated wallets.`,
+      inputSchema: z.object({ customer_id: z.string().describe("Customer id") }).strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/wallets`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_get_customer_custodial_wallet",
+    {
+      title: "Get Customer Custodial Wallet",
+      description: `Get a single custodial wallet by customer id and wallet id.
+
+Args:
+  - customer_id (string): the customer id
+  - wallet_id (string): the custodial wallet id
+
+Returns the curated wallet.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          wallet_id: z.string().describe("Custodial wallet id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/wallets/${encodeURIComponent(params.wallet_id)}`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_get_customer_custodial_wallet_balance",
+    {
+      title: "Get Customer Custodial Wallet Balance",
+      description: `Get the balance of a customer's custodial wallet.
+
+Args:
+  - customer_id (string): the customer id
+  - wallet_id (string): the custodial wallet id
+
+Returns the sanitized balance (available/total/pending/token).`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          wallet_id: z.string().describe("Custodial wallet id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/wallets/${encodeURIComponent(params.wallet_id)}/balance`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_create_customer_custodial_wallet",
+    {
+      title: "Create Customer Custodial Wallet",
+      description: `Create a custodial (wallet) for a customer.
+
+Args:
+  - customer_id (string): the customer id
+  - network (string): the wallet network
+  - name (string): a display name for the wallet
+  - external_id (string, optional): your external reference for this wallet
+
+Returns the created wallet.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          network: z.string().describe("Wallet network"),
+          name: z.string().describe("Wallet display name"),
+          external_id: z.string().optional().describe("External reference id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const { customer_id, ...payload } = params;
+      const data = await client.request(
+        `/customers/${encodeURIComponent(customer_id)}/wallets`,
+        "POST",
+        payload
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_delete_customer_custodial_wallet",
+    {
+      title: "Delete Customer Custodial Wallet",
+      description: `Remove a customer's custodial wallet.
+
+Args:
+  - customer_id (string): the customer id
+  - wallet_id (string): the custodial wallet id
+
+Returns 204 No Content on success.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          wallet_id: z.string().describe("Custodial wallet id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/wallets/${encodeURIComponent(params.wallet_id)}`,
+        "DELETE"
+      );
+      return { content: [{ type: "text", text: JSON.stringify({ ok: true }) }], structuredContent: { ok: true } };
+    }
+  );
+
+  // ---- Customer blockchain wallet — sign message ----
+  server.registerTool(
+    "ashar_sign_customer_blockchain_wallet_message",
+    {
+      title: "Sign Customer Blockchain Wallet Message",
+      description: `Sign a message with a customer's blockchain wallet.
+
+Args:
+  - customer_id (string): the customer id
+  - wallet_id (string): the blockchain wallet id
+  - message (string): the message to sign
+
+Returns the signed result.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          wallet_id: z.string().describe("Blockchain wallet id"),
+          message: z.string().describe("Message to sign"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/blockchain-wallets/${encodeURIComponent(params.wallet_id)}/sign-message`,
+        "POST",
+        { message: params.message }
+      );
+      return buildResult(data);
+    }
+  );
+
+  // ---- Customer bank account — offramp wallets ----
+  server.registerTool(
+    "ashar_list_customer_offramp_wallets",
+    {
+      title: "List Customer Offramp Wallets",
+      description: `List a customer's offramp wallets (crypto settlement wallets for a bank account).
+
+Args:
+  - customer_id (string): the customer id
+  - bank_account_id (string): the bank account id
+
+Returns an array of offramp_wallets.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          bank_account_id: z.string().describe("Bank account id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/bank-accounts/${encodeURIComponent(params.bank_account_id)}/offramp-wallets`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_get_customer_offramp_wallet",
+    {
+      title: "Get Customer Offramp Wallet",
+      description: `Get a single offramp wallet by id.
+
+Args:
+  - customer_id (string): the customer id
+  - bank_account_id (string): the bank account id
+  - offramp_wallet_id (string): the offramp wallet id
+
+Returns the curated offramp wallet.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          bank_account_id: z.string().describe("Bank account id"),
+          offramp_wallet_id: z.string().describe("Offramp wallet id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/customers/${encodeURIComponent(params.customer_id)}/bank-accounts/${encodeURIComponent(params.bank_account_id)}/offramp-wallets/${encodeURIComponent(params.offramp_wallet_id)}`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  server.registerTool(
+    "ashar_create_customer_offramp_wallet",
+    {
+      title: "Create Customer Offramp Wallet",
+      description: `Create an offramp wallet for a customer's bank account.
+
+Args:
+  - customer_id (string): the customer id
+  - bank_account_id (string): the bank account id
+  - network (string): the settlement network
+  - external_id (string, optional): your external reference
+
+Returns the created offramp wallet.`,
+      inputSchema: z
+        .object({
+          customer_id: z.string().describe("Customer id"),
+          bank_account_id: z.string().describe("Bank account id"),
+          network: z.string().describe("Settlement network"),
+          external_id: z.string().optional().describe("External reference id"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const { customer_id, bank_account_id, ...payload } = params;
+      const data = await client.request(
+        `/customers/${encodeURIComponent(customer_id)}/bank-accounts/${encodeURIComponent(bank_account_id)}/offramp-wallets`,
+        "POST",
+        payload
+      );
+      return buildResult(data);
+    }
+  );
 }

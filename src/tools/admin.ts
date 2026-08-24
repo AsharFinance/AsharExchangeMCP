@@ -146,4 +146,64 @@ Returns { status: 'deleted', count }.`,
       return buildResult(data);
     }
   );
+
+  // GET /admin/tenants/:id/markup
+  server.registerTool(
+    "ashar_get_user_markup",
+    {
+      title: "Get User Markup Config",
+      description: `Get the end-user markup (2nd spread layer on top of the Ashar margin) for a tenant. ADMIN operation.
+
+This markup is Ashar-specific — the upstream only sees the Ashar partner, so the end-user spread is configured locally.
+
+Args:
+  - tenant_id (string): the tenant id
+
+Returns user_markup with payin_spread_percent and payout_spread_percent.`,
+      inputSchema: z.object({ tenant_id: z.string().describe("Tenant id") }).strict(),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const data = await client.request(
+        `/admin/tenants/${encodeURIComponent(params.tenant_id)}/markup`,
+        "GET"
+      );
+      return buildResult(data);
+    }
+  );
+
+  // PUT /admin/tenants/:id/markup
+  server.registerTool(
+    "ashar_set_user_markup",
+    {
+      title: "Set User Markup Config",
+      description: `Set the end-user markup (2nd spread layer on top of the Ashar margin) for a tenant. ADMIN operation.
+
+This markup is Ashar-specific — the upstream only sees the Ashar partner, so the end-user spread is configured locally. Both rates apply multiplicatively on top of the Ashar spread when quoting.
+
+Args:
+  - tenant_id (string): the tenant id
+  - payin_spread_percent (number, optional): end-user spread on payins (percent)
+  - payout_spread_percent (number, optional): end-user spread on payouts (percent)
+
+Returns the updated user_markup.`,
+      inputSchema: z
+        .object({
+          tenant_id: z.string().describe("Tenant id"),
+          payin_spread_percent: z.number().optional().describe("End-user payin spread percent"),
+          payout_spread_percent: z.number().optional().describe("End-user payout spread percent"),
+        })
+        .strict(),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const { tenant_id, ...body } = params;
+      const data = await client.request(
+        `/admin/tenants/${encodeURIComponent(tenant_id)}/markup`,
+        "PUT",
+        body
+      );
+      return buildResult(data);
+    }
+  );
 }

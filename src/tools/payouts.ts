@@ -4,7 +4,7 @@ import { ExchangeClient } from "../client.js";
 import { buildResult } from "../format.js";
 
 export function registerPayoutTools(server: McpServer, client: ExchangeClient): void {
-  // POST /payouts — execute withdrawal
+  // POST /payouts — execute withdrawal (network-aware)
   server.registerTool(
     "ashar_execute_payout",
     {
@@ -14,6 +14,8 @@ export function registerPayoutTools(server: McpServer, client: ExchangeClient): 
 Args:
   - quote_id (string): id from ashar_create_payout_quote
   - sender_wallet_id (string): the sender wallet address from which crypto is debited
+  - network (string, optional): settlement network — 'evm' (default), 'solana', or 'stellar'
+  - signed_transaction (string, optional): pre-signed transaction, required for 'solana' and 'stellar'
   - idempotency_key (string, optional): safely retry without double-spending
 
 Returns the payout_id and status.`,
@@ -21,6 +23,8 @@ Returns the payout_id and status.`,
         .object({
           quote_id: z.string().describe("Quote id from ashar_create_payout_quote"),
           sender_wallet_id: z.string().describe("Sender wallet address debited for the payout"),
+          network: z.enum(["evm", "solana", "stellar"]).optional().describe("Settlement network (default evm)"),
+          signed_transaction: z.string().optional().describe("Pre-signed transaction (required for solana/stellar)"),
           idempotency_key: z.string().optional().describe("Optional idempotency key"),
         })
         .strict(),

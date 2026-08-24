@@ -45,7 +45,7 @@ No arguments. Returns count, volume_brl, and platform_fee_brl broken down by pay
       title: "Get Fee Rates",
       description: `Get the current platform fee rates and limits applied to the tenant.
 
-No arguments. Returns the tenant fees (payin/payout/transfer spreads and fixed fees) and daily/monthly volume limits in BRL.`,
+No arguments. Returns the tenant fees (payin/payout/transfer spreads and fixed fees), the end-user markup (user_markup), and daily/monthly volume limits in BRL.`,
       inputSchema: z.object({}).strict(),
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },

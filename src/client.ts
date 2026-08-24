@@ -56,6 +56,29 @@ export class ExchangeClient {
     return (await fn()) as T;
   }
 
+  /**
+   * Send a raw (non-JSON) body request, used for file uploads where the payload
+   * must be passed through verbatim as binary instead of JSON.stringify'd. Uses
+   * octet-stream so the proxy's raw-body upload handler captures it without the
+   * global JSON parser interfering.
+   */
+  async requestRaw<T = unknown>(path: string, method: Method, body: Buffer): Promise<T> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/octet-stream",
+      Accept: "application/json",
+    };
+    const key = process.env.ASHAR_EXCHANGE_TENANT_KEY;
+    if (key) {
+      headers[TENANT_KEY_HEADER] = key;
+    }
+    try {
+      const response = await this.http.request({ url: path, method, data: body, headers });
+      return response.data as T;
+    } catch (error) {
+      throw ExchangeClient.describeError(error, path);
+    }
+  }
+
   /** Convert a raw request error into a readable, actionable message. */
   static describeError(error: unknown, path: string): Error {
     if (error instanceof AxiosError) {
