@@ -6,12 +6,11 @@ Inspirado no BlindPay MCP: é um wrapper HTTP autônomo que chama a API pública
 
 ## Recursos
 
-- **43 ferramentas** com prefixo `ashar_`, cobrindo todos os grupos da API:
+- **40 ferramentas** com prefixo `ashar_`, cobrindo todos os grupos da API:
   - **Quotes** — cotação de payin, payout e transfer (com markup de fees)
   - **PayIns** — depósito PIX → stablecoin, listagem e consulta
   - **Payouts** — saque stablecoin → PIX
   - **Transfers** — transferência wallet → blockchain
-  - **Recharge** — recarga e settlement de transferência
   - **Wallets** — carteiras e saldos
   - **Bank Accounts** — contas bancárias PIX
   - **Stats** — métricas diárias/mensais e taxas de fee

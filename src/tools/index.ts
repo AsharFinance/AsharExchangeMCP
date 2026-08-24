@@ -6,7 +6,6 @@ import { registerCustomerTools } from "./customers.js";
 import { registerPayinTools } from "./payins.js";
 import { registerPayoutTools } from "./payouts.js";
 import { registerQuoteTools } from "./quotes.js";
-import { registerRechargeTools } from "./recharge.js";
 import { registerStatTools } from "./stats.js";
 import { registerTransferTools } from "./transfers.js";
 import { registerWalletTools } from "./wallets.js";
@@ -17,7 +16,6 @@ export function registerAllTools(server: McpServer, client: ExchangeClient): voi
   registerPayinTools(server, client);
   registerPayoutTools(server, client);
   registerTransferTools(server, client);
-  registerRechargeTools(server, client);
   registerWalletTools(server, client);
   registerBankAccountTools(server, client);
   registerStatTools(server, client);
