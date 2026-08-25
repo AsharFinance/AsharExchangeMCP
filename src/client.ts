@@ -62,12 +62,12 @@ export class ExchangeClient {
    * octet-stream so the proxy's raw-body upload handler captures it without the
    * global JSON parser interfering.
    */
-  async requestRaw<T = unknown>(path: string, method: Method, body: Buffer): Promise<T> {
+  async requestRaw<T = unknown>(path: string, method: Method, body: Buffer, tenantKey?: string): Promise<T> {
     const headers: Record<string, string> = {
       "Content-Type": "application/octet-stream",
       Accept: "application/json",
     };
-    const key = process.env.ASHAR_EXCHANGE_TENANT_KEY;
+    const key = tenantKey || process.env.ASHAR_EXCHANGE_TENANT_KEY;
     if (key) {
       headers[TENANT_KEY_HEADER] = key;
     }

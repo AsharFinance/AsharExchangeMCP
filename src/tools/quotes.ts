@@ -94,7 +94,7 @@ Use before ashar_execute_payout.`,
   );
 
   // =========================================================
-  // POST /fx-rate — quick FX rate quote
+  // POST /quotes/fx-rate — quick FX rate quote (canonical; /fx-rate kept as alias)
   // =========================================================
   server.registerTool(
     "ashar_get_fx_rate",
@@ -122,7 +122,7 @@ Returns base_rate (BlindPay) and client_rate (after markup) plus platform_fee.`,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (params) => {
-      const data = await client.request("/fx-rate", "POST", params);
+      const data = await client.request("/quotes/fx-rate", "POST", params);
       return buildResult(data);
     }
   );

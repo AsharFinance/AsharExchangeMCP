@@ -12,7 +12,7 @@ Inspired by the BlindPay MCP: it is a standalone HTTP wrapper that calls the pub
 
 ## Features
 
-- **40 tools** with the `ashar_` prefix, covering every API group:
+- **55 tools** with the `ashar_` prefix, covering every API group:
   - **Quotes** — payin, payout and transfer quotes (with fee markup)
   - **PayIns** — PIX deposit → stablecoin, listing and querying
   - **Payouts** — stablecoin withdrawal → PIX
@@ -20,8 +20,10 @@ Inspired by the BlindPay MCP: it is a standalone HTTP wrapper that calls the pub
   - **Wallets** — wallets and balances
   - **Bank Accounts** — PIX bank accounts
   - **Stats** — daily/monthly metrics and fee rates
-  - **Customers** — customer onboarding + sub-resources (bank accounts, wallets, virtual accounts)
-  - **Admin/Provisioning** — provision test tenant, list tenants and manage credentials
+  - **Fees** — list, get, create and delete partner fee schedules
+  - **Customers** — customer onboarding + sub-resources (bank accounts, blockchain wallets, custodial wallets, virtual accounts, offramp wallets)
+  - **Upload** — document upload (e.g. payout supporting file)
+  - **Admin/Provisioning** — provision test tenant, list tenants, manage credentials and per-tenant user markup
 - **Selectable transport** — stdio (default) or Streamable HTTP via environment variable
 - **Actionable errors** — HTTP code mapping (400/401/403/404/409/429/503) with hints
 
@@ -182,7 +184,7 @@ Inspirado no BlindPay MCP: é um wrapper HTTP autônomo que chama a API pública
 
 ## Recursos
 
-- **40 ferramentas** com prefixo `ashar_`, cobrindo todos os grupos da API:
+- **55 ferramentas** com prefixo `ashar_`, cobrindo todos os grupos da API:
   - **Quotes** — cotação de payin, payout e transfer (com markup de fees)
   - **PayIns** — depósito PIX → stablecoin, listagem e consulta
   - **Payouts** — saque stablecoin → PIX
@@ -190,8 +192,9 @@ Inspirado no BlindPay MCP: é um wrapper HTTP autônomo que chama a API pública
   - **Wallets** — carteiras e saldos
   - **Bank Accounts** — contas bancárias PIX
   - **Stats** — métricas diárias/mensais e taxas de fee
-  - **Customers** — customer onboarding + sub-recursos (bank accounts, wallets, virtual accounts)
-  - **Admin/Provisioning** — provisionar tenant de teste, listar tenants e gerenciar credenciais
+  - **Customers** — customer onboarding + sub-recursos (bank accounts, wallets, virtual accounts, custodial/offramp wallets)
+  - **Parceiro/Admin** — provisionar tenant de teste, listar tenants, credenciais e **user markup (spread fim-a-fim)**
+  - **Upload** — upload de documentos (ex.: comprovante de payout)
 - **Transporte selecionável** — stdio (padrão) ou Streamable HTTP via variável de ambiente
 - **Erros acionáveis** — mapeamento de códigos HTTP (400/401/403/404/409/429/503) com hints
 
@@ -352,7 +355,7 @@ A definir. Contate a Ashar Finance.
 
 ## 功能特性
 
-- **40 个工具**，均带 `ashar_` 前缀，覆盖所有 API 分组：
+- **55 个工具**，均带 `ashar_` 前缀，覆盖所有 API 分组：
   - **Quotes** — payin、payout 和 transfer 报价（含费用加成）
   - **PayIns** — PIX 充值 → 稳定币，列出与查询
   - **Payouts** — 稳定币提现 → PIX
@@ -360,8 +363,9 @@ A definir. Contate a Ashar Finance.
   - **Wallets** — 钱包与余额
   - **Bank Accounts** — PIX 银行账户
   - **Stats** — 每日/每月指标与费率
-  - **Customers** — 客户入驻 + 子资源（bank accounts、wallets、virtual accounts）
-  - **Admin/Provisioning** — 创建测试租户、列出租户并管理凭证
+  - **Customers** — 客户入驻 + 子资源（bank accounts、wallets、virtual accounts、custodial/offramp wallets）
+  - **合作伙伴/管理** — 创建测试租户、列出租户、管理凭证和**用户加价（端到端价差）**
+  - **Upload** — 上传文档（如 payout 证明文件）
 - **可选择的传输方式** — stdio（默认）或通过环境变量的 Streamable HTTP
 - **可操作的错误提示** — HTTP 状态码映射（400/401/403/404/409/429/503）并附带提示
 
