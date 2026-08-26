@@ -11,8 +11,10 @@ import { DEFAULT_API_BASE_URL, DEFAULT_TIMEOUT_MS, TENANT_KEY_HEADER } from "./c
  */
 export class ExchangeClient {
   private readonly http: AxiosInstance;
+  private tenantKeyOverride?: string;
 
   constructor(opts: { baseUrl?: string; tenantKey?: string; timeoutMs?: number } = {}) {
+    this.tenantKeyOverride = opts.tenantKey;
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -28,13 +30,26 @@ export class ExchangeClient {
   }
 
   /**
+   * Set (or clear) the tenant API key used on subsequent calls. This lets the
+   * HTTP transport feed the `X-Ashar-Tenant-Key` inbound header into the client
+   * on every request, so each MCP client authenticates as its own tenant.
+   */
+  setTenantKey(tenantKey?: string): void {
+    this.tenantKeyOverride = tenantKey;
+  }
+
+  private resolveTenantKey(tenantKey?: string): string | undefined {
+    return tenantKey || this.tenantKeyOverride || process.env.ASHAR_EXCHANGE_TENANT_KEY;
+  }
+
+  /**
    * Attach the tenant key to a single request. The MCP passes the key in per
    * call (from the env var) so protected endpoints are always authenticated.
    */
   buildRequest(path: string, method: Method, body: unknown, tenantKey?: string): () => Promise<unknown> {
     return async () => {
       const headers: Record<string, string> = {};
-      const key = tenantKey || process.env.ASHAR_EXCHANGE_TENANT_KEY;
+      const key = this.resolveTenantKey(tenantKey);
       if (key) {
         headers[TENANT_KEY_HEADER] = key;
       }
@@ -67,7 +82,7 @@ export class ExchangeClient {
       "Content-Type": "application/octet-stream",
       Accept: "application/json",
     };
-    const key = tenantKey || process.env.ASHAR_EXCHANGE_TENANT_KEY;
+    const key = this.resolveTenantKey(tenantKey);
     if (key) {
       headers[TENANT_KEY_HEADER] = key;
     }

@@ -16,12 +16,22 @@ const SERVER_NAME = "ashar-exchange-mcp-server";
  * server. When using HTTP you can also set `PORT` to choose the port.
  */
 function start(): void {
-  const client = new ExchangeClient({
-    baseUrl: process.env.ASHAR_EXCHANGE_BASE_URL || DEFAULT_API_BASE_URL,
-    tenantKey: process.env.ASHAR_EXCHANGE_TENANT_KEY,
-  });
+  const baseUrl = process.env.ASHAR_EXCHANGE_BASE_URL || DEFAULT_API_BASE_URL;
+  const bootTenantKey = process.env.ASHAR_EXCHANGE_TENANT_KEY;
 
-  function createServer(): McpServer {
+  /**
+   * Build the client for a session. The tenant API key takes precedence from
+   * the inbound `X-Ashar-Tenant-Key` HTTP header (so each MCP client authenticates
+   * as its own tenant), falling back to the boot-time env var.
+   */
+  function createClient(headerTenantKey?: string): ExchangeClient {
+    return new ExchangeClient({
+      baseUrl,
+      tenantKey: headerTenantKey || bootTenantKey,
+    });
+  }
+
+  function createServer(client: ExchangeClient): McpServer {
     const server = new McpServer(
       { name: SERVER_NAME, version },
       {
@@ -44,23 +54,31 @@ function start(): void {
     app.use(express.json({ limit: "10mb" }));
 
     // Each MCP client session gets its own server + transport, keyed by session id.
-    const sessions = new Map<string, { server: McpServer; transport: StreamableHTTPServerTransport }>();
+    const sessions = new Map<string, { server: McpServer; transport: StreamableHTTPServerTransport; client: ExchangeClient }>();
 
     app.post("/mcp", async (req, res) => {
       const sessionId = (req.headers["mcp-session-id"] as string | undefined) || randomUUID();
+      // Capture the tenant key from the inbound HTTP header on EVERY request and
+      // feed it into the session's client, so protected tool calls authenticate
+      // as the calling tenant (fixes MCP 401s when only the header carries the
+      // key and ASHAR_EXCHANGE_TENANT_KEY is unset).
+      const headerTenantKey = req.headers["x-ashar-tenant-key"] as string | undefined;
       try {
         let session = sessions.get(sessionId);
         if (!session) {
-          const server = createServer();
+          const client = createClient(headerTenantKey);
+          const server = createServer(client);
           const transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: () => sessionId,
           });
           await server.connect(transport);
-          session = { server, transport };
+          session = { server, transport, client };
           sessions.set(sessionId, session);
           transport.onclose = () => {
             sessions.delete(sessionId);
           };
+        } else if (headerTenantKey) {
+          session.client.setTenantKey(headerTenantKey);
         }
         // express has already parsed the JSON body; pass it to the transport.
         await session.transport.handleRequest(req, res, req.body);
@@ -105,7 +123,7 @@ function start(): void {
   }
 
   // Default: stdio transport for CLI / MCP clients.
-  const server = createServer();
+  const server = createServer(createClient());
   const stdioTransport = new StdioServerTransport();
   void server.connect(stdioTransport);
 }
