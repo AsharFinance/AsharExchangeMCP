@@ -140,9 +140,9 @@ Args:
   - wallet_id (string): source BlindPay wallet
   - request_amount (number): amount in cents
   - sender_token (string): 'USDC' or 'USDT'
-  - receiver_wallet_address (string): destination address
-  - receiver_token (string): 'USDC' or 'USDT'
-  - receiver_network (string): destination network
+  - customer_wallet_address (string): destination address
+  - customer_token (string): 'USDC' or 'USDT'
+  - customer_network (string): destination network
   - amount_reference (string, optional): 'sender' or 'receiver'
   - cover_fees (boolean, optional, default false)
 
@@ -152,9 +152,9 @@ Returns quote_id, estimated_receive, fx_rate, expires_at, and platform_fee.`,
           wallet_id: z.string().describe("Source BlindPay wallet id"),
           request_amount: z.number().int().min(1).describe("Amount in cents"),
           sender_token: Token.describe("Stablecoin being sent"),
-          receiver_wallet_address: z.string().describe("Destination wallet address"),
-          receiver_token: Token.describe("Stablecoin received"),
-          receiver_network: Network.describe("Destination network"),
+          customer_wallet_address: z.string().describe("Destination wallet address"),
+          customer_token: Token.describe("Stablecoin received"),
+          customer_network: Network.describe("Destination network"),
           amount_reference: z.enum(["sender", "receiver"]).optional().describe("Reference amount type"),
           cover_fees: z.boolean().optional().describe("Whether sender covers fees (default false)"),
         })
